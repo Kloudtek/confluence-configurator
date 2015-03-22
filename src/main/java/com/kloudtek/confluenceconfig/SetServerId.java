@@ -22,37 +22,52 @@ import java.io.IOException;
  */
 @Parameters(commandDescription = "Set server id (server must be restarted after this)")
 public class SetServerId {
-    @Parameter(names = {"-d","--dir"}, description = "Confluence directory (where confluence.cfg.xml is located)",required = true)
+    @Parameter(names = {"-d", "--dir"}, description = "Confluence directory (where confluence.cfg.xml is located)", required = true)
     private String confluenceDir;
-    @Parameter(names = {"-id","--serverid"}, description = "Server Id",required = true)
+    @Parameter(names = {"-id", "--serverid"}, description = "Server Id", required = true)
     private String serverId;
 
     public void execute() throws SetupException {
         File cfg = new File(confluenceDir, "confluence.cfg.xml");
         try {
-            Document dom = XmlUtils.parse(cfg);
-            Element existing = XPathUtils.evalXPathElement("confluence-configuration/properties/property[@name='confluence.setup.server.id']", dom);
-            if( existing != null ) {
-                String previousId = existing.getTextContent();
-                if( previousId.trim().equals(serverId) ) {
-                    System.out.println("Server id already set to "+serverId);
-                    return;
+            if (cfg.exists()) {
+                Document dom = XmlUtils.parse(cfg);
+                Element existing = XPathUtils.evalXPathElement("confluence-configuration/properties/property[@name='confluence.setup.server.id']", dom);
+                if (existing != null) {
+                    String previousId = existing.getTextContent();
+                    if (previousId.trim().equals(serverId)) {
+                        System.out.println("Server id already set to " + serverId);
+                        return;
+                    } else {
+                        existing.setTextContent(serverId);
+                        System.out.println("Server id was " + previousId + ", changed to " + serverId);
+                    }
                 } else {
-                    existing.setTextContent(serverId);
-                    System.out.println("Server id was "+previousId+", changed to "+serverId);
+                    System.out.println("Server id set to " + serverId);
+                    Element propsEl = XPathUtils.evalXPathElement("confluence-configuration/properties", dom);
+                    Element sidEl = XmlUtils.createElement("property", propsEl, "name", "confluence.setup.server.id");
+                    sidEl.setTextContent(serverId);
                 }
+                try (FileWriter os = new FileWriter(cfg)) {
+                    XmlUtils.serialize(dom, os);
+                }
+                System.out.println("Don't forget to restart server");
             } else {
-                System.out.println("Server id set to "+serverId);
-                Element propsEl = XPathUtils.evalXPathElement("confluence-configuration/properties", dom);
-                Element sidEl = XmlUtils.createElement("property", propsEl, "name", "confluence.setup.server.id");
-                sidEl.setTextContent(serverId);
+                try (FileWriter os = new FileWriter(cfg)) {
+                    os.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                            "\n" +
+                            "<confluence-configuration>\n" +
+                            "  <setupStep>setupstart</setupStep>\n" +
+                            "  <setupType>initial</setupType>\n" +
+                            "  <buildNumber>0</buildNumber>\n" +
+                            "  <properties>" +
+                            "    <property name=\"confluence.setup.server.id\">" + serverId + "</property>" +
+                            "  </properties>" +
+                            "</confluence-configuration>");
+                }
             }
-            try (FileWriter fw = new FileWriter(cfg)) {
-                XmlUtils.serialize(dom, fw);
-            }
-            System.out.println("Don't forget to restart server");
         } catch (IOException | SAXException | XPathExpressionException e) {
-            throw new SetupException("Unable to read configuration file " + cfg.getPath() + ": " + e.getMessage(), e);
+            throw new SetupException("Unable to update configuration file " + cfg.getPath() + ": " + e.getMessage(), e);
         }
     }
 }

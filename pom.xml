@@ -10,7 +10,7 @@
 
     <groupId>com.kloudtek.confluence-configurator</groupId>
     <artifactId>confluence-configurator</artifactId>
-    <version>1.0beta1</version>
+    <version>1.0beta2</version>
 
     <build>
         <plugins>

@@ -19,9 +19,34 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.2</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>classworlds:classworlds</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.kloudtek.confluenceconfig.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -42,5 +67,76 @@
             <artifactId>jcommander</artifactId>
             <version>1.47</version>
         </dependency>
+        <dependency>
+            <groupId>com.kloudtek.ktutils</groupId>
+            <artifactId>ktutils-xml</artifactId>
+            <version>1.2-SNAPSHOT</version>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>kloudtek-oss-releases</id>
+            <name>S3 Release Repository</name>
+            <url>https://s3.amazonaws.com/maven.kloudtek.com/release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>kloudtek-oss-snapshots</id>
+            <name>S3 Release Repository</name>
+            <url>https://s3.amazonaws.com/maven.kloudtek.com/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>kloudtek-oss-releases</id>
+            <name>S3 Release Repository</name>
+            <url>https://s3.amazonaws.com/maven.kloudtek.com/release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>kloudtek-oss-snapshots</id>
+            <name>S3 Release Repository</name>
+            <url>https://s3.amazonaws.com/maven.kloudtek.com/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    <distributionManagement>
+        <!--        <site>
+                    <id>kloudtek-oss</id>
+                    <name>S3 Release Repository</name>
+                    <url>s3://maven.kloudtek.com/sites/ktutils-snapshot</url>
+                </site>-->
+        <repository>
+            <id>kloudtek-oss-releases</id>
+            <name>S3 Release Repository</name>
+            <url>s3://maven.kloudtek.com/release</url>
+        </repository>
+        <snapshotRepository>
+            <id>kloudtek-oss-snapshots</id>
+            <name>S3 Release Repository</name>
+            <url>s3://maven.kloudtek.com/snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

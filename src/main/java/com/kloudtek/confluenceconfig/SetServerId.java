@@ -64,6 +64,7 @@ public class SetServerId {
                             "    <property name=\"confluence.setup.server.id\">" + serverId + "</property>" +
                             "  </properties>" +
                             "</confluence-configuration>");
+                    System.out.println("Creating missing configuration file " + cfg.getPath());
                 }
             }
         } catch (IOException | SAXException | XPathExpressionException e) {

@@ -11,7 +11,7 @@ import com.beust.jcommander.ParameterException;
  * Created by yannick on 22/03/15.
  */
 public class Main {
-    public static final String SETSERVERID = "setserverid";
+    public static final String UPDATECONFIG = "updateconfig";
     public static final String CREATEDB = "createdb";
     public static final String CONFIGURE = "configure";
 
@@ -19,10 +19,10 @@ public class Main {
         Main main = new Main();
         JCommander jc = new JCommander(main);
         jc.setProgramName("confluencecfg");
-        SetServerId setServerId = new SetServerId();
+        UpdateConfig updateConfig = new UpdateConfig();
         CreateDatabase createDatabase = new CreateDatabase();
         SetupConfluence setupConfluence = new SetupConfluence();
-        jc.addCommand(SETSERVERID, setServerId);
+        jc.addCommand(UPDATECONFIG, updateConfig);
         jc.addCommand(CREATEDB, createDatabase);
         jc.addCommand(CONFIGURE, setupConfluence);
         try {
@@ -30,8 +30,8 @@ public class Main {
             String cmd = jc.getParsedCommand();
             if( cmd != null ) {
                 switch (cmd) {
-                    case SETSERVERID:
-                        setServerId.execute();
+                    case UPDATECONFIG:
+                        updateConfig.execute();
                         break;
                     case CREATEDB:
                         createDatabase.execute();

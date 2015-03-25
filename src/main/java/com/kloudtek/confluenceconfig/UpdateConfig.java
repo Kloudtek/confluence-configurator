@@ -20,12 +20,14 @@ import java.io.IOException;
 /**
  * Created by yannick on 22/03/15.
  */
-@Parameters(commandDescription = "Set server id (server must be restarted after this)")
-public class SetServerId {
+@Parameters(commandDescription = "Update server configuration file (server must be restarted after this)")
+public class UpdateConfig {
     @Parameter(names = {"-d", "--dir"}, description = "Confluence directory (where confluence.cfg.xml is located)", required = true)
     private String confluenceDir;
     @Parameter(names = {"-id", "--serverid"}, description = "Server Id", required = true)
     private String serverId;
+    @Parameter(names = {"-db", "--database-url"}, description = "Database url", required = true)
+    private String dbUrl;
 
     public void execute() throws SetupException {
         File cfg = new File(confluenceDir, "confluence.cfg.xml");
@@ -47,6 +49,11 @@ public class SetServerId {
                     Element propsEl = XPathUtils.evalXPathElement("confluence-configuration/properties", dom);
                     Element sidEl = XmlUtils.createElement("property", propsEl, "name", "confluence.setup.server.id");
                     sidEl.setTextContent(serverId);
+                }
+                Element currentDbUrl = XPathUtils.evalXPathElement("confluence-configuration/properties/property[@name='hibernate.connection.url']", dom);
+                if (currentDbUrl != null) {
+                    currentDbUrl.setTextContent(dbUrl);
+                    System.out.println("Updated db url to " + dbUrl);
                 }
                 try (FileWriter os = new FileWriter(cfg)) {
                     XmlUtils.serialize(dom, os);

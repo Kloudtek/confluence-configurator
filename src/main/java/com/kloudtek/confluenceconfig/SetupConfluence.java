@@ -4,23 +4,15 @@
 
 package com.kloudtek.confluenceconfig;
 
-import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.*;
-import com.kloudtek.util.xml.XPathUtils;
-import com.kloudtek.util.xml.XmlUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlSelect;
+import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
+import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
 
-import javax.xml.xpath.XPathExpressionException;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,12 +45,14 @@ public class SetupConfluence {
     private String adminEmail;
     @Parameter(names = "-ap", description = "Confluence admin password",required = true)
     private String adminPassword;
+    @Parameter(names = {"-t", "--timeout"}, description = "HTTP connection timetout")
+    private long timeout = 300000;
 
     public void execute() throws IOException, SetupException {
         Logger.getLogger("").setLevel(Level.WARNING);
         WebClient webClient = new WebClient();
         webClient.getOptions().setJavaScriptEnabled(false);
-        webClient.getOptions().setTimeout(600000);
+        webClient.getOptions().setTimeout(timeout);
         HtmlPage page = webClient.getPage(serverUrl);
         boolean inprogress = true;
         while (inprogress) {

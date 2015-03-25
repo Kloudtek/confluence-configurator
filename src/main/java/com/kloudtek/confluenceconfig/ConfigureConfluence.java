@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * Created by yannick on 22/03/15.
  */
 @Parameters(commandDescription = "Configure confluence")
-public class SetupConfluence {
+public class ConfigureConfluence {
     @Parameter(names = {"-sid","--serverid"}, description = "Server Id")
     private String serverId;
     @Parameter(names = {"-l","--license"}, description = "Server License", required = true)
@@ -46,9 +46,10 @@ public class SetupConfluence {
     @Parameter(names = "-ap", description = "Confluence admin password",required = true)
     private String adminPassword;
     @Parameter(names = {"-t", "--timeout"}, description = "HTTP connection timetout")
-    private long timeout = 300000;
+    private int timeout = 300000;
 
     public void execute() throws IOException, SetupException {
+        System.out.println("Configuring confluence server " + serverUrl);
         Logger.getLogger("").setLevel(Level.WARNING);
         WebClient webClient = new WebClient();
         webClient.getOptions().setJavaScriptEnabled(false);

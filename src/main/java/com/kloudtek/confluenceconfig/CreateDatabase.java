@@ -39,11 +39,12 @@ public class CreateDatabase {
     private int retryGap = 10;
 
     public void execute() throws SQLException {
+        String url = "jdbc:postgresql://" + dbAddress + ":" + dbPort + "/" + masterDbName;
+        System.out.println("Creating database on server " + url);
         boolean retry = true;
         long timeout = System.currentTimeMillis() + (this.retry * 1000L);
         while (retry) {
-            String url = "jdbc:postgresql://" + dbAddress + ":" + dbPort + "/" + masterDbName;
-            System.out.println("Creating database on server " + url);
+            System.out.println("Connecting to server ");
             try (Connection db = DriverManager.getConnection(url, dbMasterUsername, dbMasterPassword)) {
                 try (Statement st = db.createStatement()) {
                     ResultSet rs = st.executeQuery("SELECT 1 AS result FROM pg_database WHERE datname='" + confluenceDbName + "'");

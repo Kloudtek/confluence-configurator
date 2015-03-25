@@ -31,18 +31,20 @@ public class UpdateConfig {
 
     public void execute() throws SetupException {
         File cfg = new File(confluenceDir, "confluence.cfg.xml");
+        System.out.println("Updating configuration file " + cfg.getPath());
         try {
             if (cfg.exists()) {
+                boolean changed = false;
                 Document dom = XmlUtils.parse(cfg);
                 Element existing = XPathUtils.evalXPathElement("confluence-configuration/properties/property[@name='confluence.setup.server.id']", dom);
                 if (existing != null) {
                     String previousId = existing.getTextContent();
                     if (previousId.trim().equals(serverId)) {
                         System.out.println("Server id already set to " + serverId);
-                        return;
                     } else {
                         existing.setTextContent(serverId);
                         System.out.println("Server id was " + previousId + ", changed to " + serverId);
+                        changed = true;
                     }
                 } else {
                     System.out.println("Server id set to " + serverId);
@@ -54,11 +56,16 @@ public class UpdateConfig {
                 if (currentDbUrl != null) {
                     currentDbUrl.setTextContent(dbUrl);
                     System.out.println("Updated db url to " + dbUrl);
+                    changed = true;
+                } else {
+                    System.out.println("Couldn't find hibernate.connection.url property, skipping");
                 }
-                try (FileWriter os = new FileWriter(cfg)) {
-                    XmlUtils.serialize(dom, os);
+                if (changed) {
+                    try (FileWriter os = new FileWriter(cfg)) {
+                        XmlUtils.serialize(dom, os);
+                    }
+                    System.out.println("Don't forget to restart server");
                 }
-                System.out.println("Don't forget to restart server");
             } else {
                 try (FileWriter os = new FileWriter(cfg)) {
                     os.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
